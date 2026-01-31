@@ -3,6 +3,8 @@ package jpa.basic.schedule.controller;
 import jpa.basic.schedule.dto.*;
 import jpa.basic.schedule.service.ScheduleService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,8 +21,9 @@ public class ScheduleController {
      * @return : 기본키(id)와 생성일자, 수정일자를 포함한 일정 응답 DTO 반환
      */
     @PostMapping("/api")
-    public ScheduleCreateResponseDto createSchedule(@RequestBody ScheduleCreateRequestDto scheduleCreateRequestDto) {
-        return scheduleService.addSchedule(scheduleCreateRequestDto);
+    public ResponseEntity<ScheduleCreateResponseDto> createSchedule(@RequestBody ScheduleCreateRequestDto scheduleCreateRequestDto) {
+        ScheduleCreateResponseDto result = scheduleService.addSchedule(scheduleCreateRequestDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
     /**
@@ -31,8 +34,9 @@ public class ScheduleController {
      * @return : 작성자명을 기준으로 등록된 일정 전부 조회 && 작성자명은 포함되거나 안될 수 있다.
      */
     @GetMapping("/api")
-    public List<ScheduleReadAllResponseDto> getSchedules(@RequestParam(required = false) String name) {
-        return scheduleService.getSchedulesByName(name);
+    public ResponseEntity<List<ScheduleReadAllResponseDto>> getSchedules(@RequestParam(required = false) String name) {
+        List<ScheduleReadAllResponseDto> result = scheduleService.getSchedulesByName(name);
+        return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
     /**
@@ -42,8 +46,9 @@ public class ScheduleController {
      * @return : 조회된 일정을 DTO로 반환
      */
     @GetMapping("/api/{id}")
-    public ScheduleReadResponseDto getSchedule(@PathVariable Long id) {
-        return scheduleService.getScheduleById(id);
+    public ResponseEntity<ScheduleReadResponseDto> getSchedule(@PathVariable Long id) {
+        ScheduleReadResponseDto result = scheduleService.getScheduleById(id);
+        return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
     /**
@@ -54,8 +59,9 @@ public class ScheduleController {
      * @return : 변경된 일정 응답 DTO
      */
     @PutMapping("/api")
-    public ScheduleUpdateResponseDto updateSchedule(@RequestBody ScheduleUpdateRequestDto scheduleUpdateRequestDto, @RequestParam String password) {
-        return scheduleService.updateSchedule(scheduleUpdateRequestDto, password);
+    public ResponseEntity<ScheduleUpdateResponseDto> updateSchedule(@RequestBody ScheduleUpdateRequestDto scheduleUpdateRequestDto, @RequestParam String password) {
+        ScheduleUpdateResponseDto result = scheduleService.updateSchedule(scheduleUpdateRequestDto, password);
+        return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
     /**
@@ -65,7 +71,8 @@ public class ScheduleController {
      * @param password : 일정 객체에 등록된 비밀번호와 검증할 입력되는 비밀번호
      */
     @DeleteMapping("/api/{id}")
-    public void deleteSchedule(@PathVariable Long id, @RequestParam String password) {
+    public ResponseEntity<Void> deleteSchedule(@PathVariable Long id, @RequestParam String password) {
         scheduleService.deleteScheduleById(id, password);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }
