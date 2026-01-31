@@ -10,6 +10,4 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
     List<Schedule> findByNameOrderByModifiedAtDesc(String name);
 
     List<Schedule> findAllByOrderByModifiedAtDesc();
-
-    Schedule save(Schedule schedule);
 }

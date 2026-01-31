@@ -15,17 +15,27 @@ public class Comment extends BaseEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String content;
 
+    @Column(length = 20, nullable = false)
     private String password;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "schedule_id")
-//    private Schedule schedule;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "schedule_id")
+    private Schedule schedule;
 
-//    public Comment(String content, String password, Schedule schedule) {
-//        this.content = content;
-//        this.password = password;
-//        this.schedule = schedule;
-//    }
+    public void setSchedule(Schedule schedule) {
+        this.schedule = schedule;
+
+        if (schedule != null && !schedule.getComments().contains(this)) {
+            schedule.getComments().add(this);
+        }
+    }
+
+    public Comment(String content, String password, Schedule schedule) {
+        this.content = content;
+        this.password = password;
+        this.schedule = schedule;
+    }
 }

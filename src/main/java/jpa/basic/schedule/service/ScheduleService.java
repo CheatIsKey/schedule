@@ -1,53 +1,134 @@
 package jpa.basic.schedule.service;
 
 import jpa.basic.schedule.domain.Schedule;
-import jpa.basic.schedule.dto.ScheduleResponseDto;
+import jpa.basic.schedule.dto.*;
+import jpa.basic.schedule.exception.NoSuchScheduleException;
+import jpa.basic.schedule.exception.PasswordMismatchException;
 import jpa.basic.schedule.repository.ScheduleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class ScheduleService {
     private final ScheduleRepository repository;
 
-    public ScheduleResponseDto addSchedule(Schedule schedule) {
+    /**
+     * 일정 생성
+     *
+     * @param scheduleCreateRequestDto : 일정 생성 요청 DTO
+     * @return : 비밀번호를 제외한 일정 DTO
+     */
+    public ScheduleCreateResponseDto addSchedule(ScheduleCreateRequestDto scheduleCreateRequestDto) {
+        Schedule schedule = new Schedule(
+                scheduleCreateRequestDto.title(),
+                scheduleCreateRequestDto.content(),
+                scheduleCreateRequestDto.name(),
+                scheduleCreateRequestDto.password()
+        );
+
         Schedule savedSchedule = repository.save(schedule);
 
-        return new ScheduleResponseDto(savedSchedule.getId(), savedSchedule.getTitle(), savedSchedule.getName(), savedSchedule.getContent())
+        return new ScheduleCreateResponseDto(savedSchedule.getId(), savedSchedule.getTitle(),
+                savedSchedule.getName(), savedSchedule.getContent(), savedSchedule.getCreatedAt(), savedSchedule.getModifiedAt());
     }
 
     /**
      * 특정 사용자의 일정 전체 조회
-     *  1. name이 비어있거나 공백만 있으면 전체 조회
-     *  2. name으로 작성된 일정 조회
-     *  수정일 기준 내림차순 정렬
+     * 1. name이 비어있거나 공백만 있으면 전체 조회
+     * 2. name으로 작성된 일정 조회
+     * 수정일 기준 내림차순 정렬
+     *
      * @param name : 검색할 작성자명
      * @return : 일정 목록을 리스트로 반환
      */
-    public List<ScheduleResponseDto> getSchedule(String name) {
+    @Transactional(readOnly = true)
+    public List<ScheduleReadAllResponseDto> getSchedulesByName(String name) {
+        List<Schedule> schedules;
+
         if (name == null || name.isBlank()) {
-            List<Schedule> schedules = repository.findAll();
-
-            return schedules.stream()
-                    .map(schedule ->
-                            new ScheduleResponseDto(schedule.getId(), schedule.getTitle(), schedule.getName(), schedule.getContent(), schedule.getCreatedAt(), schedule.getModifiedAt()))
-                    .toList();
+            schedules = repository.findAllByOrderByModifiedAtDesc();
         } else {
-            List<Schedule> schedules = repository.findByName(name);
-
-            List<ScheduleResponseDto> dtos = schedules.stream()
-                    .map(schedule ->
-                            new ScheduleResponseDto(schedule.getId(), schedule.getTitle(), schedule.getName(), schedule.getContent(), schedule.getCreatedAt(), schedule.getModifiedAt()))
-                    .toList();
-
-            dtos.sort(Comparator.comparing(schedule -> schedule.modifiedAt(), Comparator.reverseOrder()));
-
-            return dtos;
+            schedules = repository.findByNameOrderByModifiedAtDesc(name);
         }
+
+        return schedules.stream()
+                .map(ScheduleReadAllResponseDto::new)
+                .toList();
+    }
+
+    /**
+     * 특정 일정 조회
+     *
+     * @param id : 검색할 일정 기본키
+     * @return : 일정 단일 객체 DTO 반환
+     */
+    @Transactional(readOnly = true)
+    public ScheduleReadResponseDto getScheduleById(Long id) {
+        return repository.findById(id)
+                .map(ScheduleReadResponseDto::new)
+                .orElseThrow(() -> new NoSuchScheduleException("예정된 일정이 없습니다."));
+    }
+
+    // TODO: DTO를 무조건 하나의 책임만 주기
+    /**
+     * 수정할 일정 DTO와 검증할 비밀번호를 컨트롤러에게 전달받고 검증을 거쳐서 더티체킹으로 변경사항을 관리한다.
+     *
+     * @param scheduleUpdateRequestDto : 클라이언트가 요청한 변경사항이 담긴 일정 DTO
+     * @param password           : 변경할 일정의 비밀번호와 일치하는 지 검증하기 위한 입력받은 비밀번호
+     * @return : 변경사항이 적용된 응답 일정 DTO 반환
+     */
+    public ScheduleUpdateResponseDto updateSchedule(ScheduleUpdateRequestDto scheduleUpdateRequestDto, String password) {
+        String pw = scheduleUpdateRequestDto.password();
+
+        if (pw.equals(password)) {
+//            Schedule schedule = new Schedule(scheduleRequestDto.title(), scheduleRequestDto.content(),
+//                    scheduleRequestDto.name(), scheduleRequestDto.password());
+
+            Schedule schedule = repository.findById(scheduleUpdateRequestDto.id())
+                    .orElseThrow(() -> new NoSuchScheduleException("해당 일정은 존재하지 않습니다."));
+
+            /**
+             * 더티체킹으로 변경사항 관리
+             */
+            schedule.changeScheduleName(scheduleUpdateRequestDto.name());
+            schedule.changeScheduleTitle(scheduleUpdateRequestDto.title());
+
+            return new ScheduleUpdateResponseDto(schedule);
+        } else {
+            throw new PasswordMismatchException("비밀번호가 일치하지 않습니다.");
+        }
+    }
+
+    /**
+     * 일정 객체의 기본키(id)를 통해 조회 및 비밀번호 검증 후 삭제하는 메서드
+     *
+     * @param id       : 삭제하려는 일정의 기본키(id)
+     * @param password : 삭제하려는 일정의 비밀번호와 비교할 입력받은 비밀번호
+     */
+    public void deleteScheduleById(Long id, String password) {
+        Schedule schedule = repository.findById(id)
+                .orElseThrow(() -> new NoSuchScheduleException("해당 일정이 존재하지 않습니다."));
+
+        if (!schedule.getPassword().equals(password)) {
+            throw new PasswordMismatchException("비밀번호가 일치하지 않습니다.");
+        }
+
+        repository.delete(schedule);
+
+//        findById()를 쓸 수도 있지만, 조회가 아닌 존재 유무를 따지기 때문에
+//        existsById()로 더 가볍게 체크할 수 있다.
+//        boolean exists = repository.existsById(id);
+//
+//        if (!exists) {
+//            throw new NoSuchScheduleException("해당 일정은 존재하지 않습니다.");
+//        } else {
+//            repository.deleteById(id);
+//        }
     }
 }
