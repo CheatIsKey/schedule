@@ -4,6 +4,7 @@ import jpa.basic.schedule.domain.Schedule;
 import jpa.basic.schedule.dto.*;
 import jpa.basic.schedule.exception.NoSuchScheduleException;
 import jpa.basic.schedule.exception.PasswordMismatchException;
+import jpa.basic.schedule.repository.CommentRepository;
 import jpa.basic.schedule.repository.ScheduleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -79,19 +80,19 @@ public class ScheduleService {
     /**
      * 수정할 일정 DTO와 검증할 비밀번호를 컨트롤러에게 전달받고 검증을 거쳐서 더티체킹으로 변경사항을 관리한다.
      *
+     * @param id : 변경할 일정 id
      * @param scheduleUpdateRequestDto : 클라이언트가 요청한 변경사항이 담긴 일정 DTO
-     * @param password           : 변경할 일정의 비밀번호와 일치하는 지 검증하기 위한 입력받은 비밀번호
      * @return : 변경사항이 적용된 응답 일정 DTO 반환
      */
-    public ScheduleUpdateResponseDto updateSchedule(ScheduleUpdateRequestDto scheduleUpdateRequestDto, String password) {
-        String pw = scheduleUpdateRequestDto.password();
+    public ScheduleUpdateResponseDto updateSchedule(Long id, ScheduleUpdateRequestDto scheduleUpdateRequestDto) {
+        Schedule schedule = repository.findById(id)
+                .orElseThrow(() -> new NoSuchScheduleException("해당 일정은 존재하지 않습니다."));
 
-        if (pw.equals(password)) {
+        String password = scheduleUpdateRequestDto.password();
+
+        if (schedule.getPassword().equals(password)) {
 //            Schedule schedule = new Schedule(scheduleRequestDto.title(), scheduleRequestDto.content(),
 //                    scheduleRequestDto.name(), scheduleRequestDto.password());
-
-            Schedule schedule = repository.findById(scheduleUpdateRequestDto.id())
-                    .orElseThrow(() -> new NoSuchScheduleException("해당 일정은 존재하지 않습니다."));
 
             /**
              * 더티체킹으로 변경사항 관리
@@ -109,13 +110,13 @@ public class ScheduleService {
      * 일정 객체의 기본키(id)를 통해 조회 및 비밀번호 검증 후 삭제하는 메서드
      *
      * @param id       : 삭제하려는 일정의 기본키(id)
-     * @param password : 삭제하려는 일정의 비밀번호와 비교할 입력받은 비밀번호
+     * @param scheduleDeleteResponseDto : 클라이언트가 요청한 삭제 id가 담긴 일정 DTO
      */
-    public void deleteScheduleById(Long id, String password) {
+    public void deleteScheduleById(Long id, ScheduleDeleteResponseDto scheduleDeleteResponseDto) {
         Schedule schedule = repository.findById(id)
                 .orElseThrow(() -> new NoSuchScheduleException("해당 일정이 존재하지 않습니다."));
 
-        if (!schedule.getPassword().equals(password)) {
+        if (!schedule.getPassword().equals(scheduleDeleteResponseDto.password())) {
             throw new PasswordMismatchException("비밀번호가 일치하지 않습니다.");
         }
 

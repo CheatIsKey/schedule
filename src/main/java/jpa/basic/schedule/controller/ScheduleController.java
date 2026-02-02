@@ -54,13 +54,13 @@ public class ScheduleController {
     /**
      * 특정 일정의 제목 혹은 작성자명 수정
      *
+     * @param id : 업데이트할 일정 id
      * @param scheduleUpdateRequestDto : 사용자로부터 전달받은 변경 요청 일정 DTO
-     * @param password           : 검증을 위한 쿼리 파라미터
      * @return : 변경된 일정 응답 DTO
      */
-    @PutMapping("/api")
-    public ResponseEntity<ScheduleUpdateResponseDto> updateSchedule(@RequestBody ScheduleUpdateRequestDto scheduleUpdateRequestDto, @RequestParam String password) {
-        ScheduleUpdateResponseDto result = scheduleService.updateSchedule(scheduleUpdateRequestDto, password);
+    @PutMapping("/api/{id}")
+    public ResponseEntity<ScheduleUpdateResponseDto> updateSchedule(@PathVariable Long id, @RequestBody ScheduleUpdateRequestDto scheduleUpdateRequestDto) {
+        ScheduleUpdateResponseDto result = scheduleService.updateSchedule(id, scheduleUpdateRequestDto);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
@@ -68,11 +68,11 @@ public class ScheduleController {
      * 특정 일정을 삭제
      *
      * @param id : 일정 객체를 조회할 수 있는 기본키(id)
-     * @param password : 일정 객체에 등록된 비밀번호와 검증할 입력되는 비밀번호
+     * @param scheduleDeleteResponseDto : 삭제할 일정의 비밀번호 검증을 위한 dto
      */
     @DeleteMapping("/api/{id}")
-    public ResponseEntity<Void> deleteSchedule(@PathVariable Long id, @RequestParam String password) {
-        scheduleService.deleteScheduleById(id, password);
+    public ResponseEntity<Void> deleteSchedule(@PathVariable Long id, @RequestBody ScheduleDeleteResponseDto scheduleDeleteResponseDto) {
+        scheduleService.deleteScheduleById(id, scheduleDeleteResponseDto);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }
