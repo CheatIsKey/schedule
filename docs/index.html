@@ -59,7 +59,10 @@
                         "404": {
                             "description": "실패: 해당 ID의 일정이 존재하지 않음",
                             "content": {
-                                "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+                                "application/json": {
+                                    "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+                                    "example": { "message": "해당 일정이 존재하지 않습니다.", "statusCode": 404 }
+                                }
                             }
                         }
                     }
@@ -98,13 +101,19 @@
                         "401": {
                             "description": "실패: 비밀번호 불일치",
                             "content": {
-                                "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+                                "application/json": {
+                                    "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+                                    "example": { "message": "비밀번호가 일치하지 않습니다.", "statusCode": 401 }
+                                }
                             }
                         },
                         "404": {
                             "description": "실패: 해당 ID의 일정이 존재하지 않음",
                             "content": {
-                                "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+                                "application/json": {
+                                    "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+                                    "example": { "message": "해당 일정이 존재하지 않습니다.", "statusCode": 404 }
+                                }
                             }
                         }
                     }
@@ -136,13 +145,19 @@
                         "401": {
                             "description": "실패: 비밀번호 불일치",
                             "content": {
-                                "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+                                "application/json": {
+                                    "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+                                    "example": { "message": "비밀번호가 일치하지 않습니다.", "statusCode": 401 }
+                                }
                             }
                         },
                         "404": {
                             "description": "실패: 해당 ID의 일정이 존재하지 않음",
                             "content": {
-                                "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+                                "application/json": {
+                                    "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+                                    "example": { "message": "해당 일정이 존재하지 않습니다.", "statusCode": 404 }
+                                }
                             }
                         }
                     }
@@ -177,7 +192,10 @@
                         "500": {
                             "description": "서버 내부 오류",
                             "content": {
-                                "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+                                "application/json": {
+                                    "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+                                    "example": { "message": "서버 내부 오류가 발생했습니다.", "statusCode": 500 }
+                                }
                             }
                         }
                     }
@@ -206,7 +224,10 @@
                         "400": {
                             "description": "실패: 잘못된 요청 (필수값 누락 등)",
                             "content": {
-                                "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+                                "application/json": {
+                                    "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+                                    "example": { "message": "잘못된 요청입니다.", "statusCode": 400 }
+                                }
                             }
                         }
                     }
@@ -246,13 +267,19 @@
                         "400": {
                             "description": "실패: 댓글 제한(10개) 초과 또는 입력값 오류",
                             "content": {
-                                "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+                                "application/json": {
+                                    "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+                                    "example": { "message": "댓글은 최대 10개까지만 작성 가능합니다.", "statusCode": 400 }
+                                }
                             }
                         },
                         "404": {
                             "description": "실패: 해당 ID의 일정이 존재하지 않음",
                             "content": {
-                                "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+                                "application/json": {
+                                    "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+                                    "example": { "message": "해당 일정이 존재하지 않습니다.", "statusCode": 404 }
+                                }
                             }
                         }
                     }
@@ -264,8 +291,8 @@
                 "ErrorResponse": {
                     "type": "object",
                     "properties": {
-                        "message": { "type": "string", "example": "에러 메시지입니다." },
-                        "statusCode": { "type": "integer", "example": 400 }
+                        "message": { "type": "string" },
+                        "statusCode": { "type": "integer" }
                     }
                 },
                 "ScheduleUpdateRequestDto": {
