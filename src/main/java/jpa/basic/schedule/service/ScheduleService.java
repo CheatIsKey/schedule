@@ -124,13 +124,13 @@ public class ScheduleService {
      * 일정 객체의 기본키(id)를 통해 조회 및 비밀번호 검증 후 삭제하는 메서드
      *
      * @param id       : 삭제하려는 일정의 기본키(id)
-     * @param scheduleDeleteResponseDto : 클라이언트가 요청한 삭제 id가 담긴 일정 DTO
+     * @param scheduleDeleteRequestDto : 클라이언트가 요청한 삭제 id가 담긴 일정 DTO
      */
-    public void deleteScheduleById(Long id, ScheduleDeleteResponseDto scheduleDeleteResponseDto) {
+    public void deleteScheduleById(Long id, ScheduleDeleteRequestDto scheduleDeleteRequestDto) {
         Schedule schedule = repository.findById(id)
                 .orElseThrow(() -> new NoSuchScheduleException("해당 일정이 존재하지 않습니다."));
 
-        if (!schedule.getPassword().equals(scheduleDeleteResponseDto.password())) {
+        if (!schedule.getPassword().equals(scheduleDeleteRequestDto.password())) {
             throw new PasswordMismatchException("비밀번호가 일치하지 않습니다.");
         }
 

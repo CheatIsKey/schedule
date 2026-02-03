@@ -69,11 +69,11 @@ public class ScheduleController {
      * 특정 일정을 삭제
      *
      * @param id : 일정 객체를 조회할 수 있는 기본키(id)
-     * @param scheduleDeleteResponseDto : 삭제할 일정의 비밀번호 검증을 위한 dto
+     * @param scheduleDeleteRequestDto : 삭제할 일정의 비밀번호 검증을 위한 dto
      */
     @DeleteMapping("/api/{id}")
-    public ResponseEntity<Void> deleteSchedule(@PathVariable Long id, @RequestBody ScheduleDeleteResponseDto scheduleDeleteResponseDto) {
-        scheduleService.deleteScheduleById(id, scheduleDeleteResponseDto);
+    public ResponseEntity<Void> deleteSchedule(@PathVariable Long id, @RequestBody ScheduleDeleteRequestDto scheduleDeleteRequestDto) {
+        scheduleService.deleteScheduleById(id, scheduleDeleteRequestDto);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }
