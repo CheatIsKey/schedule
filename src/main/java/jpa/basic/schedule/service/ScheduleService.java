@@ -1,5 +1,6 @@
 package jpa.basic.schedule.service;
 
+import jpa.basic.schedule.domain.Comment;
 import jpa.basic.schedule.domain.Schedule;
 import jpa.basic.schedule.dto.*;
 import jpa.basic.schedule.exception.NoSuchScheduleException;
@@ -18,6 +19,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ScheduleService {
     private final ScheduleRepository repository;
+    private final CommentRepository commentRepository;
 
     /**
      * 일정 생성
@@ -74,6 +76,18 @@ public class ScheduleService {
         return repository.findById(id)
                 .map(ScheduleReadResponseDto::new)
                 .orElseThrow(() -> new NoSuchScheduleException("예정된 일정이 없습니다."));
+    }
+
+    @Transactional(readOnly = true)
+    public ScheduleAndCommentReadResponseDto getScheduleAndCommentById(Long id) {
+        Schedule schedule = repository.findById(id)
+                .orElseThrow(() -> new NoSuchScheduleException("예정된 일정이 없습니다."));
+
+        List<CommentResponseDto> comments = commentRepository.findCommentsByScheduleId(id).stream()
+                .map(CommentResponseDto::new)
+                .toList();
+
+        return new ScheduleAndCommentReadResponseDto(schedule, comments);
     }
 
     // TODO: DTO를 무조건 하나의 책임만 주기

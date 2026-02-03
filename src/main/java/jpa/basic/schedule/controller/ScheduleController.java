@@ -22,8 +22,7 @@ public class ScheduleController {
      */
     @PostMapping("/api")
     public ResponseEntity<ScheduleCreateResponseDto> createSchedule(@RequestBody ScheduleCreateRequestDto scheduleCreateRequestDto) {
-        ScheduleCreateResponseDto result = scheduleService.addSchedule(scheduleCreateRequestDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(result);
+        return ResponseEntity.status(HttpStatus.CREATED).body(scheduleService.addSchedule(scheduleCreateRequestDto));
     }
 
     /**
@@ -35,8 +34,7 @@ public class ScheduleController {
      */
     @GetMapping("/api")
     public ResponseEntity<List<ScheduleReadAllResponseDto>> getSchedules(@RequestParam(required = false) String name) {
-        List<ScheduleReadAllResponseDto> result = scheduleService.getSchedulesByName(name);
-        return ResponseEntity.status(HttpStatus.OK).body(result);
+        return ResponseEntity.status(HttpStatus.OK).body(scheduleService.getSchedulesByName(name));
     }
 
     /**
@@ -45,10 +43,13 @@ public class ScheduleController {
      * @param id : 조회할 일정 기본키
      * @return : 조회된 일정을 DTO로 반환
      */
+//    @GetMapping("/api/{id}")
+//    public ResponseEntity<ScheduleReadResponseDto> getSchedule(@PathVariable Long id) {
+//        return ResponseEntity.status(HttpStatus.OK).body(scheduleService.getScheduleById(id));
+//    }
     @GetMapping("/api/{id}")
-    public ResponseEntity<ScheduleReadResponseDto> getSchedule(@PathVariable Long id) {
-        ScheduleReadResponseDto result = scheduleService.getScheduleById(id);
-        return ResponseEntity.status(HttpStatus.OK).body(result);
+    public ResponseEntity<ScheduleAndCommentReadResponseDto> getScheduleAndComment(@PathVariable Long id) {
+        return ResponseEntity.status(HttpStatus.OK).body(scheduleService.getScheduleAndCommentById(id));
     }
 
     /**

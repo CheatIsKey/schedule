@@ -37,8 +37,8 @@ public class Schedule extends BaseEntity {
         this.password = password;
     }
 
-    @OneToMany(mappedBy = "schedule")
-    private List<Comment> comments = new ArrayList<>();
+//    @OneToMany(mappedBy = "schedule")
+//    private List<Comment> comments = new ArrayList<>();
 
     public void changeScheduleTitle(String title) {
         this.title = title;

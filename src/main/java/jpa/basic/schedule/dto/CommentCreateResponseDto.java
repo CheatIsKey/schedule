@@ -5,9 +5,9 @@ import jpa.basic.schedule.domain.Comment;
 import java.time.LocalDateTime;
 
 public record CommentCreateResponseDto(
-        Long id, Long scheduleId, String name, String content, String password, LocalDateTime createdAt, LocalDateTime modifiedAt
+        Long id, Long scheduleId, String name, String content, LocalDateTime createdAt, LocalDateTime modifiedAt
 ) {
     public CommentCreateResponseDto(Comment comment) {
-        this(comment.getId(), comment.getScheduleId(), comment.getName(), comment.getContent(), comment.getPassword(), comment.getCreatedAt(), comment.getModifiedAt());
+        this(comment.getId(), comment.getScheduleId(), comment.getName(), comment.getContent(), comment.getCreatedAt(), comment.getModifiedAt());
     }
 }
