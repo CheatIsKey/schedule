@@ -36,38 +36,49 @@
             "/api/{id}": {
                 "get": {
                     "tags": ["schedule-controller"],
+                    "summary": "일정 단건 조회",
                     "operationId": "getScheduleAndComment",
                     "parameters": [
                         {
                             "name": "id",
                             "in": "path",
+                            "description": "조회할 일정 ID",
                             "required": true,
                             "schema": { "type": "integer", "format": "int64" }
                         }
                     ],
                     "responses": {
                         "200": {
-                            "description": "OK",
+                            "description": "성공 (일정 및 댓글 조회)",
                             "content": {
                                 "*/*": {
                                     "schema": { "$ref": "#/components/schemas/ScheduleAndCommentReadResponseDto" }
                                 }
+                            }
+                        },
+                        "404": {
+                            "description": "실패: 해당 ID의 일정이 존재하지 않음",
+                            "content": {
+                                "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
                             }
                         }
                     }
                 },
                 "put": {
                     "tags": ["schedule-controller"],
+                    "summary": "일정 수정",
                     "operationId": "updateSchedule",
                     "parameters": [
                         {
                             "name": "id",
                             "in": "path",
+                            "description": "수정할 일정 ID",
                             "required": true,
                             "schema": { "type": "integer", "format": "int64" }
                         }
                     ],
                     "requestBody": {
+                        "description": "수정할 내용 및 비밀번호",
                         "content": {
                             "application/json": {
                                 "schema": { "$ref": "#/components/schemas/ScheduleUpdateRequestDto" }
@@ -77,27 +88,42 @@
                     },
                     "responses": {
                         "200": {
-                            "description": "OK",
+                            "description": "성공 (수정 완료)",
                             "content": {
                                 "*/*": {
                                     "schema": { "$ref": "#/components/schemas/ScheduleUpdateResponseDto" }
                                 }
+                            }
+                        },
+                        "401": {
+                            "description": "실패: 비밀번호 불일치",
+                            "content": {
+                                "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+                            }
+                        },
+                        "404": {
+                            "description": "실패: 해당 ID의 일정이 존재하지 않음",
+                            "content": {
+                                "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
                             }
                         }
                     }
                 },
                 "delete": {
                     "tags": ["schedule-controller"],
+                    "summary": "일정 삭제",
                     "operationId": "deleteSchedule",
                     "parameters": [
                         {
                             "name": "id",
                             "in": "path",
+                            "description": "삭제할 일정 ID",
                             "required": true,
                             "schema": { "type": "integer", "format": "int64" }
                         }
                     ],
                     "requestBody": {
+                        "description": "삭제 권한 확인용 비밀번호",
                         "content": {
                             "application/json": {
                                 "schema": { "$ref": "#/components/schemas/ScheduleDeleteResponseDto" }
@@ -106,18 +132,32 @@
                         "required": true
                     },
                     "responses": {
-                        "200": { "description": "OK" }
+                        "200": { "description": "성공 (삭제 완료)" },
+                        "401": {
+                            "description": "실패: 비밀번호 불일치",
+                            "content": {
+                                "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+                            }
+                        },
+                        "404": {
+                            "description": "실패: 해당 ID의 일정이 존재하지 않음",
+                            "content": {
+                                "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+                            }
+                        }
                     }
                 }
             },
             "/api": {
                 "get": {
                     "tags": ["schedule-controller"],
+                    "summary": "전체 일정 조회",
                     "operationId": "getSchedules",
                     "parameters": [
                         {
                             "name": "name",
                             "in": "query",
+                            "description": "작성자 이름으로 필터링 (선택)",
                             "required": false,
                             "schema": { "type": "string" }
                         }
@@ -133,11 +173,18 @@
                                     }
                                 }
                             }
+                        },
+                        "500": {
+                            "description": "서버 내부 오류",
+                            "content": {
+                                "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+                            }
                         }
                     }
                 },
                 "post": {
                     "tags": ["schedule-controller"],
+                    "summary": "일정 생성",
                     "operationId": "createSchedule",
                     "requestBody": {
                         "content": {
@@ -149,11 +196,17 @@
                     },
                     "responses": {
                         "201": {
-                            "description": "Created",
+                            "description": "Created (생성 성공)",
                             "content": {
                                 "*/*": {
                                     "schema": { "$ref": "#/components/schemas/ScheduleCreateResponseDto" }
                                 }
+                            }
+                        },
+                        "400": {
+                            "description": "실패: 잘못된 요청 (필수값 누락 등)",
+                            "content": {
+                                "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
                             }
                         }
                     }
@@ -162,11 +215,13 @@
             "/api/{scheduleId}": {
                 "post": {
                     "tags": ["comment-controller"],
+                    "summary": "댓글 생성",
                     "operationId": "createComment",
                     "parameters": [
                         {
                             "name": "scheduleId",
                             "in": "path",
+                            "description": "댓글을 달 일정 ID",
                             "required": true,
                             "schema": { "type": "integer", "format": "int64" }
                         }
@@ -181,11 +236,23 @@
                     },
                     "responses": {
                         "201": {
-                            "description": "Created",
+                            "description": "Created (댓글 등록 성공)",
                             "content": {
                                 "*/*": {
                                     "schema": { "$ref": "#/components/schemas/CommentCreateResponseDto" }
                                 }
+                            }
+                        },
+                        "400": {
+                            "description": "실패: 댓글 제한(10개) 초과 또는 입력값 오류",
+                            "content": {
+                                "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+                            }
+                        },
+                        "404": {
+                            "description": "실패: 해당 ID의 일정이 존재하지 않음",
+                            "content": {
+                                "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
                             }
                         }
                     }
@@ -194,6 +261,13 @@
         },
         "components": {
             "schemas": {
+                "ErrorResponse": {
+                    "type": "object",
+                    "properties": {
+                        "message": { "type": "string", "example": "에러 메시지입니다." },
+                        "statusCode": { "type": "integer", "example": 400 }
+                    }
+                },
                 "ScheduleUpdateRequestDto": {
                     "type": "object",
                     "properties": {
