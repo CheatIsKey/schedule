@@ -19,16 +19,16 @@ public class Schedule extends BaseEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-//    @Column(length = 30, nullable = false)
+    @Column(length = 30, nullable = false)
     private String title;
 
-//    @Column(length = 200, nullable = false)
+    @Column(length = 200, nullable = false)
     private String content;
 
-//    @Column(length = 20, nullable = false)
+    @Column(length = 20, nullable = false)
     private String name;
 
-//    @Column(length = 20, nullable = false)
+    @Column(length = 20, nullable = false)
     private String password;
 
     public Schedule(String title, String content, String name, String password) {
@@ -54,10 +54,14 @@ public class Schedule extends BaseEntity {
 //    private List<Comment> comments = new ArrayList<>();
 
     public void changeScheduleTitle(String title) {
+        Validator.isNotNull(title, "일정 제목은 필수 입력입니다!");
+        Validator.checkLength(title, 30, "일정 제목을 최소(1) ~ 최대(30) 범위에 맞게 작성하세요!");
         this.title = title;
     }
 
     public void changeScheduleName(String name) {
+        Validator.isNotNull(content, "일정 내용은 필수 입력입니다!");
+        Validator.checkLength(content, 200, "일정 내용을 최소(1) ~ 최대(200) 범위에 맞게 작성하세요!");
         this.name = name;
     }
 }

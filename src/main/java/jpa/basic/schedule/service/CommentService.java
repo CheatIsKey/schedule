@@ -30,6 +30,10 @@ public class CommentService extends BaseEntity {
             throw new CommentLimitExceededException("댓글의 최대 개수(10)가 넘었습니다.");
         }
 
+        /**
+         * saved는 scheduleId가 존재하는 상태
+         * new Comment()의 scheduleId는 null 상태
+         */
         Comment saved = commentRepository.save(new Comment(scheduleId, commentCreateRequestDto.content(),
                 commentCreateRequestDto.name(), commentCreateRequestDto.password()));
 

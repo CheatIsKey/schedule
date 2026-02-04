@@ -51,7 +51,7 @@ public class ScheduleService {
      * @return : 일정 목록을 리스트로 반환
      */
     @Transactional(readOnly = true)
-    public List<ScheduleReadAllResponseDto> getSchedulesByName(String name) {
+    public List<ScheduleReadAllResponseDto> getSchedules(String name) {
         List<Schedule> schedules;
 
         if (name == null || name.isBlank()) {
@@ -68,22 +68,22 @@ public class ScheduleService {
     /**
      * 특정 일정 조회
      *
-     * @param id : 검색할 일정 기본키
+     * @param scheduleId : 검색할 일정 기본키
      * @return : 일정 단일 객체 DTO 반환
      */
     @Transactional(readOnly = true)
-    public ScheduleReadResponseDto getScheduleById(Long id) {
-        return repository.findById(id)
+    public ScheduleReadResponseDto getScheduleById(Long scheduleId) {
+        return repository.findById(scheduleId)
                 .map(ScheduleReadResponseDto::new)
                 .orElseThrow(() -> new NoSuchScheduleException("예정된 일정이 없습니다."));
     }
 
     @Transactional(readOnly = true)
-    public ScheduleAndCommentReadResponseDto getScheduleAndCommentById(Long id) {
-        Schedule schedule = repository.findById(id)
+    public ScheduleAndCommentReadResponseDto getScheduleAndCommentById(Long scheduleId) {
+        Schedule schedule = repository.findById(scheduleId)
                 .orElseThrow(() -> new NoSuchScheduleException("예정된 일정이 없습니다."));
 
-        List<CommentResponseDto> comments = commentRepository.findCommentsByScheduleId(id).stream()
+        List<CommentResponseDto> comments = commentRepository.findCommentsByScheduleId(scheduleId).stream()
                 .map(CommentResponseDto::new)
                 .toList();
 
@@ -94,12 +94,12 @@ public class ScheduleService {
     /**
      * 수정할 일정 DTO와 검증할 비밀번호를 컨트롤러에게 전달받고 검증을 거쳐서 더티체킹으로 변경사항을 관리한다.
      *
-     * @param id : 변경할 일정 id
+     * @param scheduleId : 변경할 일정 기본키
      * @param scheduleUpdateRequestDto : 클라이언트가 요청한 변경사항이 담긴 일정 DTO
      * @return : 변경사항이 적용된 응답 일정 DTO 반환
      */
-    public ScheduleUpdateResponseDto updateSchedule(Long id, ScheduleUpdateRequestDto scheduleUpdateRequestDto) {
-        Schedule schedule = repository.findById(id)
+    public ScheduleUpdateResponseDto updateSchedule(Long scheduleId, ScheduleUpdateRequestDto scheduleUpdateRequestDto) {
+        Schedule schedule = repository.findById(scheduleId)
                 .orElseThrow(() -> new NoSuchScheduleException("해당 일정은 존재하지 않습니다."));
 
         String password = scheduleUpdateRequestDto.password();
@@ -121,13 +121,13 @@ public class ScheduleService {
     }
 
     /**
-     * 일정 객체의 기본키(id)를 통해 조회 및 비밀번호 검증 후 삭제하는 메서드
+     * 일정 객체의 기본키(scheduleId)를 통해 조회 및 비밀번호 검증 후 삭제하는 메서드
      *
-     * @param id       : 삭제하려는 일정의 기본키(id)
+     * @param scheduleId       : 삭제하려는 일정의 기본키(scheduleId)
      * @param scheduleDeleteRequestDto : 클라이언트가 요청한 삭제 id가 담긴 일정 DTO
      */
-    public void deleteScheduleById(Long id, ScheduleDeleteRequestDto scheduleDeleteRequestDto) {
-        Schedule schedule = repository.findById(id)
+    public void deleteScheduleById(Long scheduleId, ScheduleDeleteRequestDto scheduleDeleteRequestDto) {
+        Schedule schedule = repository.findById(scheduleId)
                 .orElseThrow(() -> new NoSuchScheduleException("해당 일정이 존재하지 않습니다."));
 
         if (!schedule.getPassword().equals(scheduleDeleteRequestDto.password())) {
@@ -138,12 +138,12 @@ public class ScheduleService {
 
 //        findById()를 쓸 수도 있지만, 조회가 아닌 존재 유무를 따지기 때문에
 //        existsById()로 더 가볍게 체크할 수 있다.
-//        boolean exists = repository.existsById(id);
+//        boolean exists = repository.existsById(scheduleId);
 //
 //        if (!exists) {
 //            throw new NoSuchScheduleException("해당 일정은 존재하지 않습니다.");
 //        } else {
-//            repository.deleteById(id);
+//            repository.deleteById(scheduleId);
 //        }
     }
 }

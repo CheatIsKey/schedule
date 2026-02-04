@@ -17,7 +17,7 @@ public class CommentController {
 
     private final CommentService commentService;
 
-    @PostMapping("/api/{scheduleId}")
+    @PostMapping("/api/comments/{scheduleId}")
     public ResponseEntity<CommentCreateResponseDto> createComment(@PathVariable Long scheduleId,
                                                                   @RequestBody CommentCreateRequestDto commentCreateRequestDto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(commentService.addComment(scheduleId, commentCreateRequestDto));
