@@ -47,7 +47,7 @@ Spring Boot와 JPA를 활용하여 일정을 CRUD(등록, 조회, 수정, 삭제
 | GET    | /api/schedules/{id}         | 특정 일정 조회 | 해당 일정과 연관된 댓글 목록을 함께 반환합니다.        |
 | PUT    | /api/schedules/{id}         | 일정 수정    | 비밀번호가 일치할 경우 제목과 작성자명을 수정합니다.      |
 | DELETE | /api/schedules/{id}         | 일정 삭제    | 비밀번호가 일치할 경우 일정을 삭제합니다.            |
-| POST   | /api/schedules/{scheduleId} | 댓글 생성    | 특정 일정에 댓글을 등록합니다. (최대 10개)         |
+| POST   | /api/comments/{scheduleId} | 댓글 생성    | 특정 일정에 댓글을 등록합니다. (최대 10개)         |
 
 ---
 
