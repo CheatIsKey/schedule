@@ -130,7 +130,13 @@ public class ScheduleService {
         Schedule schedule = repository.findById(scheduleId)
                 .orElseThrow(() -> new NoSuchScheduleException("해당 일정이 존재하지 않습니다."));
 
-        if (!schedule.getPassword().equals(scheduleDeleteRequestDto.password())) {
+//        비밀번호를 비교할 때, password가 null일 수도 있기 때문에 검사를 하고 진행하거나,
+//        ObjectUtils.nullSafeEquals()를 활용하면 된다.
+//        if (!schedule.getPassword().equals(scheduleDeleteRequestDto.password())) {
+//            throw new PasswordMismatchException("비밀번호가 일치하지 않습니다.");
+//        }
+
+        if(!ObjectUtils.nullSafeEquals(schedule.getPassword(), scheduleDeleteRequestDto.password())) {
             throw new PasswordMismatchException("비밀번호가 일치하지 않습니다.");
         }
 
