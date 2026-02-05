@@ -1,6 +1,5 @@
 package jpa.basic.schedule.service;
 
-import jpa.basic.schedule.domain.Comment;
 import jpa.basic.schedule.domain.Schedule;
 import jpa.basic.schedule.dto.*;
 import jpa.basic.schedule.exception.NoSuchScheduleException;
@@ -10,9 +9,9 @@ import jpa.basic.schedule.repository.ScheduleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Transactional
@@ -91,10 +90,11 @@ public class ScheduleService {
     }
 
     // TODO: DTO를 무조건 하나의 책임만 주기
+
     /**
      * 수정할 일정 DTO와 검증할 비밀번호를 컨트롤러에게 전달받고 검증을 거쳐서 더티체킹으로 변경사항을 관리한다.
      *
-     * @param scheduleId : 변경할 일정 기본키
+     * @param scheduleId               : 변경할 일정 기본키
      * @param scheduleUpdateRequestDto : 클라이언트가 요청한 변경사항이 담긴 일정 DTO
      * @return : 변경사항이 적용된 응답 일정 DTO 반환
      */
@@ -102,28 +102,28 @@ public class ScheduleService {
         Schedule schedule = repository.findById(scheduleId)
                 .orElseThrow(() -> new NoSuchScheduleException("해당 일정은 존재하지 않습니다."));
 
-        String password = scheduleUpdateRequestDto.password();
-
-        if (schedule.getPassword().equals(password)) {
+//        비밀번호를 비교할 때, password가 null일 수도 있기 때문에 검사를 하고 진행하거나,
+//        ObjectUtils.nullSafeEquals()를 활용하면 된다.
+//        if (schedule.getPassword().equals(password)) {
 //            Schedule schedule = new Schedule(scheduleRequestDto.title(), scheduleRequestDto.content(),
 //                    scheduleRequestDto.name(), scheduleRequestDto.password());
 
-            /**
-             * 더티체킹으로 변경사항 관리
-             */
-            schedule.changeScheduleName(scheduleUpdateRequestDto.name());
-            schedule.changeScheduleTitle(scheduleUpdateRequestDto.title());
-
-            return new ScheduleUpdateResponseDto(schedule);
-        } else {
+        if (!ObjectUtils.nullSafeEquals(schedule.getPassword(), scheduleUpdateRequestDto.password())) {
             throw new PasswordMismatchException("비밀번호가 일치하지 않습니다.");
         }
+        /**
+         * 더티체킹으로 변경사항 관리
+         */
+        schedule.changeScheduleName(scheduleUpdateRequestDto.name());
+        schedule.changeScheduleTitle(scheduleUpdateRequestDto.title());
+
+        return new ScheduleUpdateResponseDto(schedule);
     }
 
     /**
      * 일정 객체의 기본키(scheduleId)를 통해 조회 및 비밀번호 검증 후 삭제하는 메서드
      *
-     * @param scheduleId       : 삭제하려는 일정의 기본키(scheduleId)
+     * @param scheduleId               : 삭제하려는 일정의 기본키(scheduleId)
      * @param scheduleDeleteRequestDto : 클라이언트가 요청한 삭제 id가 담긴 일정 DTO
      */
     public void deleteScheduleById(Long scheduleId, ScheduleDeleteRequestDto scheduleDeleteRequestDto) {
