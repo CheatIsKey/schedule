@@ -1,11 +1,9 @@
 package jpa.basic.schedule.service;
 
-import jpa.basic.schedule.domain.BaseEntity;
 import jpa.basic.schedule.domain.Comment;
 import jpa.basic.schedule.dto.CommentCreateRequestDto;
 import jpa.basic.schedule.dto.CommentCreateResponseDto;
-import jpa.basic.schedule.exception.CommentLimitExceededException;
-import jpa.basic.schedule.exception.NoSuchScheduleException;
+import jpa.basic.schedule.exception.*;
 import jpa.basic.schedule.repository.CommentRepository;
 import jpa.basic.schedule.repository.ScheduleRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,19 +13,19 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class CommentService extends BaseEntity {
+public class CommentService {
 
     private final ScheduleRepository scheduleRepository;
     private final CommentRepository commentRepository;
 
     public CommentCreateResponseDto addComment(Long scheduleId, CommentCreateRequestDto commentCreateRequestDto) {
         scheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new NoSuchScheduleException("일정이 존재하지 않습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.SCHEDULE_NOT_FOUND));
 
         long commentsCnt = commentRepository.countByScheduleId(scheduleId);
 
         if (commentsCnt >= 10) {
-            throw new CommentLimitExceededException("댓글의 최대 개수(10)가 넘었습니다.");
+            throw new CustomException(ErrorCode.COMMENT_LIMIT_EXCEEDED);
         }
 
         /**

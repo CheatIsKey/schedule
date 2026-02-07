@@ -2,8 +2,7 @@ package jpa.basic.schedule.service;
 
 import jpa.basic.schedule.domain.Schedule;
 import jpa.basic.schedule.dto.*;
-import jpa.basic.schedule.exception.NoSuchScheduleException;
-import jpa.basic.schedule.exception.PasswordMismatchException;
+import jpa.basic.schedule.exception.*;
 import jpa.basic.schedule.repository.CommentRepository;
 import jpa.basic.schedule.repository.ScheduleRepository;
 import lombok.RequiredArgsConstructor;
@@ -74,13 +73,13 @@ public class ScheduleService {
     public ScheduleReadResponseDto getScheduleById(Long scheduleId) {
         return repository.findById(scheduleId)
                 .map(ScheduleReadResponseDto::new)
-                .orElseThrow(() -> new NoSuchScheduleException("예정된 일정이 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.SCHEDULE_NOT_FOUND));
     }
 
     @Transactional(readOnly = true)
     public ScheduleAndCommentReadResponseDto getScheduleAndCommentById(Long scheduleId) {
         Schedule schedule = repository.findById(scheduleId)
-                .orElseThrow(() -> new NoSuchScheduleException("예정된 일정이 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.SCHEDULE_NOT_FOUND));
 
         List<CommentResponseDto> comments = commentRepository.findCommentsByScheduleId(scheduleId).stream()
                 .map(CommentResponseDto::new)
@@ -100,7 +99,7 @@ public class ScheduleService {
      */
     public ScheduleUpdateResponseDto updateSchedule(Long scheduleId, ScheduleUpdateRequestDto scheduleUpdateRequestDto) {
         Schedule schedule = repository.findById(scheduleId)
-                .orElseThrow(() -> new NoSuchScheduleException("해당 일정은 존재하지 않습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.SCHEDULE_NOT_FOUND));
 
 //        비밀번호를 비교할 때, password가 null일 수도 있기 때문에 검사를 하고 진행하거나,
 //        ObjectUtils.nullSafeEquals()를 활용하면 된다.
@@ -109,7 +108,7 @@ public class ScheduleService {
 //                    scheduleRequestDto.name(), scheduleRequestDto.password());
 
         if (!ObjectUtils.nullSafeEquals(schedule.getPassword(), scheduleUpdateRequestDto.password())) {
-            throw new PasswordMismatchException("비밀번호가 일치하지 않습니다.");
+            throw new CustomException(ErrorCode.PASSWORD_MISMATCH);
         }
         /**
          * 더티체킹으로 변경사항 관리
@@ -128,7 +127,7 @@ public class ScheduleService {
      */
     public void deleteScheduleById(Long scheduleId, ScheduleDeleteRequestDto scheduleDeleteRequestDto) {
         Schedule schedule = repository.findById(scheduleId)
-                .orElseThrow(() -> new NoSuchScheduleException("해당 일정이 존재하지 않습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.SCHEDULE_NOT_FOUND));
 
 //        비밀번호를 비교할 때, password가 null일 수도 있기 때문에 검사를 하고 진행하거나,
 //        ObjectUtils.nullSafeEquals()를 활용하면 된다.
@@ -137,7 +136,7 @@ public class ScheduleService {
 //        }
 
         if(!ObjectUtils.nullSafeEquals(schedule.getPassword(), scheduleDeleteRequestDto.password())) {
-            throw new PasswordMismatchException("비밀번호가 일치하지 않습니다.");
+            throw new CustomException(ErrorCode.PASSWORD_MISMATCH);
         }
 
         repository.delete(schedule);
